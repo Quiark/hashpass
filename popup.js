@@ -15,9 +15,16 @@
 
 // The hashing difficulty.
 // 2 ^ difficulty rounds of SHA-256 will be computed.
-var difficulty = 16;
+var DIFFICULTY = 14;
+var RESULT_LENGTH = 20;
 
 $(function() {
+
+	var do_hashing = function(domain, key) {
+		var rounds = Math.pow(2, DIFFICULTY);
+		return sjcl.misc.pbkdf2(domain, key, rounds);
+	}
+
   // Get the current tab.
   chrome.tabs.query({
       active: true,
@@ -73,13 +80,9 @@ $(function() {
               // Compute the first 16 base64 characters of iterated-SHA-256(domain + '/' + key, 2 ^ difficulty).
               var key = $('#key').val();
 
-              var rounds = Math.pow(2, difficulty);
-              var bits = domain + '/' + key;
-              for (var i = 0; i < rounds; i += 1) {
-                bits = sjcl.hash.sha256.hash(bits);
-              }
+			  var bits = do_hashing(domain, key);
 
-              var hash = sjcl.codec.base64.fromBits(bits).slice(0, 16);
+              var hash = sjcl.codec.base64.fromBits(bits).slice(0, RESULT_LENGTH);
               if (!passwordMode) {
                 $('#hash').val(hash);
               }
