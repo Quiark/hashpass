@@ -23,7 +23,23 @@ $(function() {
 	var do_hashing = function(domain, key) {
 		var rounds = Math.pow(2, DIFFICULTY);
 		return sjcl.misc.pbkdf2(domain, key, rounds);
-	}
+	};
+
+	var selftest = function() {
+		var items = [
+			do_hashing('a', 'a'),
+			do_hashing('a', 'b'),
+			do_hashing('b', 'a'),
+			do_hashing('b', 'b')
+		].map( sjcl.codec.base64.fromBits );
+
+		function onlyUnique(value, index, self) { 
+			return self.indexOf(value) === index;
+		};
+
+		if (items.filter( onlyUnique ).length != 4) alert('selftest failed');
+		else alert('is ok');
+	};
 
   // Get the current tab.
   chrome.tabs.query({
